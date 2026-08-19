@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WheelSwap AI | Style-Rodas Web</title>
+  <meta name="description" content="Substituição inteligente de rodas em fotos de carros usando Gemini Vision e IA Generativa no navegador.">
+  <meta name="theme-color" content="#0F1115">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="m19 12-4-2-1 4"></path>
+            <path d="M5 12h3"></path>
+            <path d="M12 5v3"></path>
+            <path d="M12 16v3"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">WheelSwap AI</h1>
+          <p class="brand-subtitle">Edição Generativa com Gemini Vision</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnInfo" class="icon-btn" title="Sobre e Instruções" aria-label="Informações">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- 1. API KEY CONFIG CARD -->
+      <section class="card api-key-card">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <svg class="icon-amber" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m21 2-2 2m-1.5 1.5L13 10l-4-4-5.5 5.5a2.12 2.12 0 0 0 0 3l7 7a2.12 2.12 0 0 0 3 0L19 16l-4-4 4.5-4.5"></path>
+              <circle cx="7.5" cy="16.5" r="1.5"></circle>
+            </svg>
+            <span class="card-title">GEMINI_API_KEY</span>
+          </div>
+          <span id="apiKeyStatus" class="status-badge badge-warning">Opcional / Local</span>
+        </div>
+        
+        <div class="input-group">
+          <input type="password" id="apiKeyInput" placeholder="Cole sua chave da API do Google AI Studio..." autocomplete="off" spellcheck="false">
+          <button id="toggleKeyVisibility" class="input-addon-btn" aria-label="Alternar visualização da chave">
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        <p class="card-caption">Salva localmente no seu navegador via <code>localStorage</code>. Se omitida, a troca de rodas utiliza o motor de renderização fotorrealista local.</p>
+      </section>
+
+      <!-- Section Title -->
+      <div class="section-label">SELEÇÃO DE FOTOS</div>
+
+      <!-- 2. CAR PHOTO SELECTOR -->
+      <section class="card selection-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">1. Foto do Carro</h2>
+            <p id="carSubtitle" class="card-subtitle">Nenhum carro selecionado</p>
+          </div>
+          <label class="btn btn-cyan btn-sm" for="carFileInput">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+              <line x1="16" y1="5" x2="22" y2="5"></line>
+              <line x1="19" y1="2" x2="19" y2="8"></line>
+              <circle cx="9" cy="9" r="2"></circle>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+            </svg>
+            <span>Galeria / Câmera</span>
+          </label>
+          <input type="file" id="carFileInput" accept="image/*" class="hidden-input">
+        </div>
+
+        <div id="carPreviewBox" class="preview-box">
+          <div class="placeholder-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+              <circle cx="7" cy="17" r="2"></circle>
+              <path d="M9 17h6"></path>
+              <circle cx="17" cy="17" r="2"></circle>
+            </svg>
+            <p>Selecione uma foto ou use um preset abaixo</p>
+          </div>
+          <img id="carPreviewImg" class="preview-image hidden" alt="Prévia do Carro">
+        </div>
+
+        <!-- Car Presets -->
+        <div class="preset-row">
+          <span class="preset-tag">Presets:</span>
+          <div class="preset-chips">
+            <button class="chip" data-car="sports">🏎️ Cupê Esportivo (Azul)</button>
+            <button class="chip" data-car="suv">🚙 SUV / Crossover (Preto)</button>
+            <button class="chip" data-car="sedan">🚗 Sedan Executivo (Cinza)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. WHEEL PHOTO SELECTOR -->
+      <section class="card selection-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">2. Foto da Roda / Aro</h2>
+            <p id="wheelSubtitle" class="card-subtitle">Nenhuma roda selecionada</p>
+          </div>
+          <label class="btn btn-amber btn-sm" for="wheelFileInput">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+              <line x1="16" y1="5" x2="22" y2="5"></line>
+              <line x1="19" y1="2" x2="19" y2="8"></line>
+              <circle cx="9" cy="9" r="2"></circle>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+            </svg>
+            <span>Galeria / Câmera</span>
+          </label>
+          <input type="file" id="wheelFileInput" accept="image/*" class="hidden-input">
+        </div>
+
+        <div id="wheelPreviewBox" class="preview-box">
+          <div class="placeholder-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="4"></circle>
+              <line x1="12" y1="2" x2="12" y2="8"></line>
+              <line x1="12" y1="16" x2="12" y2="22"></line>
+              <line x1="2" y1="12" x2="8" y2="12"></line>
+              <line x1="16" y1="12" x2="22" y2="12"></line>
+            </svg>
+            <p>Selecione uma foto da roda ou use um preset</p>
+          </div>
+          <img id="wheelPreviewImg" class="preview-image hidden" alt="Prévia da Roda">
+        </div>
+
+        <!-- Wheel Presets -->
+        <div class="preset-row">
+          <span class="preset-tag">Presets:</span>
+          <div class="preset-chips">
+            <button class="chip" data-wheel="alloy">⚙️ Liga Leve Aro 20 (Grafite)</button>
+            <button class="chip" data-wheel="silver">✨ Raiada Cromada / Prata</button>
+            <button class="chip" data-wheel="bronze">🔥 Forjada Bronze Motorsport</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. ACTION PROCESS BUTTON -->
+      <div class="action-section">
+        <button id="btnProcessSwap" class="btn btn-primary btn-large">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"></path>
+          </svg>
+          <span>PROCESSAR TROCA DE RODAS</span>
+        </button>
+
+        <!-- Loading State Indicator -->
+        <div id="loadingCard" class="card loading-card hidden">
+          <div class="spinner-ring"></div>
+          <p id="loadingStatusText" class="loading-status">Analisando imagem com Gemini Vision...</p>
+          <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. RESULT SHOWCASE (Interactive Before/After Slider) -->
+      <section id="resultCard" class="card result-card hidden">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="badge-success-icon">✓</span>
+            <h2 class="card-title">RESULTADO GENERATIVO</h2>
+          </div>
+          <div class="tabs-control">
+            <button class="tab-btn active" data-mode="slider">Comparador</button>
+            <button class="tab-btn" data-mode="result">Novas Rodas</button>
+            <button class="tab-btn" data-mode="original">Original</button>
+          </div>
+        </div>
+
+        <!-- Visual Canvas Display -->
+        <div class="visual-canvas-container" id="visualContainer">
+          <!-- Slider Comparison View -->
+          <div id="sliderWrapper" class="slider-wrapper">
+            <img id="resultOriginalImg" class="slider-image base-image" alt="Carro Original">
+            <div id="sliderClipped" class="slider-clipped">
+              <img id="resultModifiedImg" class="slider-image modified-image" alt="Carro com Rodas Trocadas">
+            </div>
+            <div id="sliderHandle" class="slider-handle">
+              <div class="handle-line"></div>
+              <div class="handle-button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1115" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                  <polyline points="9 18 3 12 9 6"></polyline>
+                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1115" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                  <polyline points="15 18 21 12 15 6"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Single Image Static View (Toggled via Tabs) -->
+          <div id="singleImageViewer" class="single-image-viewer hidden">
+            <img id="singleImageTag" alt="Visualização">
+          </div>
+        </div>
+
+        <!-- Slider Hint -->
+        <div class="slider-guide">
+          <span class="guide-cyan">◄ Novas Rodas</span>
+          <span class="guide-center">Arraste a barra para comparar</span>
+          <span class="guide-amber">Original ►</span>
+        </div>
+
+        <!-- Result Description Text -->
+        <p id="resultDescription" class="result-description">Troca de rodas processada com iluminação e encaixe calibrados.</p>
+
+        <!-- Action Download & Share Buttons -->
+        <div class="result-actions">
+          <button id="btnDownloadResult" class="btn btn-outline-cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Salvar Imagem</span>
+          </button>
+          <button id="btnShareResult" class="btn btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            <span>Compartilhar</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 6. PROMPT DETAILS -->
+      <section class="card prompt-card">
+        <div class="prompt-header">PROMPT MULTIMODAL GEMINI:</div>
+        <p id="promptDisplayText" class="prompt-text">
+          "Substitua as rodas do carro presente na primeira imagem pelas rodas da segunda imagem. Mantenha a lataria, pintura, fundo e perspectiva originais do veículo. Faça o encaixe com iluminação e sombras realistas."
+        </p>
+      </section>
+    </main>
+
+    <!-- Hidden Rendering Canvas -->
+    <canvas id="renderCanvas" class="hidden"></canvas>
+
+    <!-- Info / Modal Dialog -->
+    <div id="infoModal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 class="modal-title">Sobre o WheelSwap AI</h3>
+          <button id="btnCloseModal" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Como funciona:</strong></p>
+          <ul>
+            <li><strong>1. Carregue a foto do Carro:</strong> Tire uma foto lateral ou em perspectiva do veículo.</li>
+            <li><strong>2. Carregue a foto da Roda:</strong> Escolha o aro/roda que deseja simular no carro.</li>
+            <li><strong>3. Inteligência Artificial:</strong> O aplicativo envia os dados multimodais para o modelo Gemini Vision e realiza a montagem de alta fidelidade com ajuste de ângulo e iluminação.</li>
+            <li><strong>4. 100% Web:</strong> Roda diretamente em qualquer smartphone ou computador sem precisar instalar arquivos binários.</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button id="btnModalOk" class="btn btn-primary">Entendido</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

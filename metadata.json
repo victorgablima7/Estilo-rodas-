@@ -1,0 +1,7 @@
+{
+  "name": "WheelSwap AI",
+  "description": "Edição generativa de rodas automotivas com Gemini Vision AI multimodal",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
